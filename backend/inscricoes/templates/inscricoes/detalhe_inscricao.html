@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Detalhes da Inscrição</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#0f0f0f;
+            color:white;
+            font-family:Arial, Helvetica, sans-serif;
+            padding:40px;
+        }
+
+        .container{
+            max-width:1200px;
+            margin:auto;
+            background:#171717;
+            border:1px solid #2d2d2d;
+            border-radius:24px;
+            padding:35px;
+        }
+
+        .topo{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:20px;
+            flex-wrap:wrap;
+            margin-bottom:35px;
+        }
+
+        h1{
+            color:#ffc700;
+            font-size:36px;
+        }
+
+        .badge{
+            padding:10px 18px;
+            border-radius:999px;
+            font-weight:bold;
+            font-size:14px;
+        }
+
+        .pago{
+            background:#0d4d22;
+            color:#55ff88;
+        }
+
+        .pendente{
+            background:#4d3900;
+            color:#ffc700;
+        }
+
+        .secao{
+            margin-bottom:35px;
+        }
+
+        .secao-titulo{
+            color:#ffc700;
+            font-size:22px;
+            margin-bottom:20px;
+            border-bottom:1px solid #2b2b2b;
+            padding-bottom:10px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+        }
+
+        .linha{
+            background:#1d1d1d;
+            border:1px solid #2c2c2c;
+            border-radius:16px;
+            padding:18px;
+        }
+
+        .full{
+            grid-column:1 / -1;
+        }
+
+        .label{
+            color:#8d8d8d;
+            font-size:13px;
+            margin-bottom:8px;
+            text-transform:uppercase;
+            letter-spacing:1px;
+        }
+
+        .valor{
+            font-size:17px;
+            color:white;
+            word-break:break-word;
+            line-height:1.6;
+        }
+
+        .vazio{
+            color:#666;
+            font-style:italic;
+        }
+
+        select{
+            width:100%;
+            margin-top:12px;
+            padding:14px;
+            background:#222;
+            border:1px solid #333;
+            color:white;
+            border-radius:12px;
+            outline:none;
+            font-size:15px;
+        }
+
+        select:focus{
+            border-color:#ffc700;
+        }
+
+        .acoes{
+            display:flex;
+            gap:15px;
+            margin-top:35px;
+            flex-wrap:wrap;
+        }
+
+        button{
+            padding:14px 22px;
+            border:none;
+            border-radius:12px;
+            font-size:15px;
+            cursor:pointer;
+            transition:0.2s;
+        }
+
+        button:hover{
+            transform:translateY(-2px);
+            opacity:0.9;
+        }
+
+        .salvar{
+            background:#ffc700;
+            color:black;
+            font-weight:bold;
+        }
+
+        .editar{
+            background:#2962ff;
+            color:white;
+        }
+
+        .remover{
+            background:#c62828;
+            color:white;
+        }
+
+        a{
+            text-decoration:none;
+        }
+
+        @media(max-width:768px){
+
+            body{
+                padding:20px;
+            }
+
+            .container{
+                padding:25px;
+            }
+
+            h1{
+                font-size:28px;
+            }
+
+            .grid{
+                grid-template-columns:1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="topo">
+
+            <h1>{{ inscricao.nome_completo }}</h1>
+
+            <div class="badge {% if inscricao.status_pagamento == 'pago' %}pago{% else %}pendente{% endif %}">
+                {{ inscricao.get_status_pagamento_display }}
+            </div>
+
+        </div>
+
+        <!-- DADOS PESSOAIS -->
+        <div class="secao">
+
+            <div class="secao-titulo">
+                Dados pessoais
+            </div>
+
+            <div class="grid">
+
+                <div class="linha">
+                    <div class="label">Evento</div>
+                    <div class="valor">
+                        {{ inscricao.evento.nome }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Tipo de inscrição</div>
+                    <div class="valor">
+                        {{ inscricao.get_tipo_display }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Telefone</div>
+                    <div class="valor">
+                        {{ inscricao.telefone }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Email</div>
+                    <div class="valor">
+                        {{ inscricao.email }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Idade</div>
+                    <div class="valor">
+                        {{ inscricao.idade }} anos
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Data de nascimento</div>
+                    <div class="valor">
+                        {{ inscricao.data_nascimento|date:"d/m/Y" }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Cidade</div>
+                    <div class="valor">
+                        {{ inscricao.cidade }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Estado</div>
+                    <div class="valor">
+                        {{ inscricao.estado }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Tamanho da camisa</div>
+                    <div class="valor">
+                        {{ inscricao.tamanho_camisa }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Quer servir?</div>
+                    <div class="valor">
+
+                        {% if inscricao.quer_servir %}
+                            Sim
+                        {% else %}
+                            Não
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- IGREJA -->
+        <div class="secao">
+
+            <div class="secao-titulo">
+                Igreja / Comunidade
+            </div>
+
+            <div class="grid">
+
+                <div class="linha">
+                    <div class="label">Participa de igreja?</div>
+                    <div class="valor">
+
+                        {% if inscricao.participa_igreja %}
+                            Sim
+                        {% else %}
+                            Não
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Nome da igreja</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.igreja %}
+                            {{ inscricao.igreja }}
+                        {% else %}
+                            <span class="vazio">
+                                Não informado
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Pastor / Líder</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.pastor_lider %}
+                            {{ inscricao.pastor_lider }}
+                        {% else %}
+                            <span class="vazio">
+                                Não informado
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Telefone do líder</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.telefone_lider %}
+                            {{ inscricao.telefone_lider }}
+                        {% else %}
+                            <span class="vazio">
+                                Não informado
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha full">
+                    <div class="label">Há quanto tempo participa?</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.tempo_igreja %}
+                            {{ inscricao.tempo_igreja }}
+                        {% else %}
+                            <span class="vazio">
+                                Não informado
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- EMERGÊNCIA -->
+        <div class="secao">
+
+            <div class="secao-titulo">
+                Contato de emergência
+            </div>
+
+            <div class="grid">
+
+                <div class="linha">
+                    <div class="label">Responsável</div>
+                    <div class="valor">
+                        {{ inscricao.responsavel_nome }}
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Telefone responsável</div>
+                    <div class="valor">
+                        {{ inscricao.telefone_responsavel }}
+                    </div>
+                </div>
+
+                <div class="linha full">
+                    <div class="label">Parentesco</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.parentesco %}
+                            {{ inscricao.parentesco }}
+                        {% else %}
+                            <span class="vazio">
+                                Não informado
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- SAÚDE -->
+        <div class="secao">
+
+            <div class="secao-titulo">
+                Informações médicas
+            </div>
+
+            <div class="grid">
+
+                <div class="linha">
+                    <div class="label">Alergias</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.alergias %}
+                            {{ inscricao.alergias }}
+                        {% else %}
+                            <span class="vazio">
+                                Nenhuma informada
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Doenças pré-existentes</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.doencas_pre_existentes %}
+                            {{ inscricao.doencas_pre_existentes }}
+                        {% else %}
+                            <span class="vazio">
+                                Nenhuma informada
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Medicamentos contínuos</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.medicamentos_continuos %}
+                            {{ inscricao.medicamentos_continuos }}
+                        {% else %}
+                            <span class="vazio">
+                                Nenhum informado
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Restrições alimentares</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.restricoes_alimentares %}
+                            {{ inscricao.restricoes_alimentares }}
+                        {% else %}
+                            <span class="vazio">
+                                Nenhuma informada
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha full">
+                    <div class="label">Observações médicas</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.observacoes_medicas %}
+                            {{ inscricao.observacoes_medicas }}
+                        {% else %}
+                            <span class="vazio">
+                                Nenhuma observação
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- PAGAMENTO -->
+        <div class="secao">
+
+            <div class="secao-titulo">
+                Informações
+            </div>
+
+            <div class="grid">
+
+                
+
+                
+
+                <div class="linha">
+                    <div class="label">Como conheceu o evento</div>
+
+                    <div class="valor">
+
+                        {% if inscricao.como_conheceu %}
+                            {{ inscricao.como_conheceu }}
+                        {% else %}
+                            <span class="vazio">
+                                Não informado
+                            </span>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="linha">
+                    <div class="label">Inscrição feita em</div>
+                    <div class="valor">
+                        {{ inscricao.criado_em|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- STATUS -->
+        <div class="secao">
+
+            <div class="secao-titulo">
+                Gerenciamento
+            </div>
+
+            <div class="linha">
+                    <div class="label">Valor da inscrição</div>
+                    <div class="valor">
+                        R$ {{ inscricao.valor }}
+                    </div>
+                </div>
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <select name="status_pagamento">
+
+                    <option 
+                        value="pendente"
+                        {% if inscricao.status_pagamento == 'pendente' %}
+                            selected
+                        {% endif %}
+                    >
+                        Pendente
+                    </option>
+
+                    <option 
+                        value="pago"
+                        {% if inscricao.status_pagamento == 'pago' %}
+                            selected
+                        {% endif %}
+                    >
+                        Pago
+                    </option>
+
+                </select>
+
+                <div class="acoes">
+
+                    <button class="salvar" type="submit">
+                        Atualizar Status
+                    </button>
+
+                    <a href="{% url 'editar_inscricao' inscricao.id %}">
+                        <button type="button" class="editar">
+                            Editar
+                        </button>
+                    </a>
+
+                    <a href="{% url 'remover_inscricao' inscricao.id %}">
+                        <button type="button" class="remover">
+                            Remover
+                        </button>
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Remover Inscrição</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#0f0f0f;
+            color:white;
+            font-family:Arial, Helvetica, sans-serif;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            padding:20px;
+        }
+
+        .card{
+            width:100%;
+            max-width:500px;
+            background:#171717;
+            border:1px solid #2a2a2a;
+            border-radius:20px;
+            padding:35px;
+            text-align:center;
+        }
+
+        h1{
+            color:#ff5b5b;
+            margin-bottom:20px;
+        }
+
+        p{
+            color:#ccc;
+            line-height:1.6;
+            margin-bottom:30px;
+        }
+
+        .nome{
+            color:#ffc700;
+            font-weight:bold;
+        }
+
+        .acoes{
+            display:flex;
+            gap:15px;
+            justify-content:center;
+            flex-wrap:wrap;
+        }
+
+        button,
+        a{
+            border:none;
+            text-decoration:none;
+            padding:14px 22px;
+            border-radius:12px;
+            cursor:pointer;
+            font-size:15px;
+            transition:0.2s;
+        }
+
+        .remover{
+            background:#c62828;
+            color:white;
+        }
+
+        .cancelar{
+            background:#2a2a2a;
+            color:white;
+        }
+
+        button:hover,
+        a:hover{
+            transform:translateY(-2px);
+            opacity:0.9;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="card">
+
+        <h1>Remover inscrição</h1>
+
+        <p>
+            Tem certeza que deseja remover a inscrição de
+            <span class="nome">
+                {{ inscricao.nome_completo }}
+            </span>?
+        </p>
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <div class="acoes">
+
+                <button type="submit" class="remover">
+                    Sim, remover
+                </button>
+
+                <a 
+                    href="{% url 'detalhe_inscricao' inscricao.id %}"
+                    class="cancelar"
+                >
+                    Cancelar
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

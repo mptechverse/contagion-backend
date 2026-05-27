@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Inscrição</title>
+
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body{
+            background:#0f0f0f;
+            color:white;
+            font-family:Arial;
+            padding:40px;
+        }
+
+        .container{
+            max-width:1100px;
+            margin:auto;
+            background:#171717;
+            border:1px solid #2a2a2a;
+            border-radius:24px;
+            padding:35px;
+        }
+
+        h1{ color:#ffc700; margin-bottom:30px; }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+        }
+
+        .campo{ display:flex; flex-direction:column; }
+
+        .campo.full{ grid-column:1 / -1; }
+
+        label{
+            margin-bottom:8px;
+            color:#999;
+            font-size:13px;
+        }
+
+        input, select, textarea{
+            padding:14px;
+            border-radius:12px;
+            background:#222;
+            color:white;
+            border:1px solid #333;
+        }
+
+        .acoes{
+            margin-top:30px;
+            display:flex;
+            gap:15px;
+        }
+
+        .salvar{
+            background:#ffc700;
+            border:none;
+            padding:14px 22px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .cancelar{
+            background:#333;
+            color:white;
+            padding:14px 22px;
+            text-decoration:none;
+            border-radius:12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Editar inscrição</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="grid">
+
+            <!-- BÁSICOS -->
+            <div class="campo">
+                <label>Nome completo</label>
+                <input name="nome_completo" value="{{ inscricao.nome_completo }}">
+            </div>
+
+            <div class="campo">
+                <label>Email</label>
+                <input name="email" value="{{ inscricao.email }}">
+            </div>
+
+            <div class="campo">
+                <label>Telefone</label>
+                <input name="telefone" value="{{ inscricao.telefone }}">
+            </div>
+
+            <div class="campo">
+                <label>Data nascimento</label>
+                <input type="date" name="data_nascimento" value="{{ inscricao.data_nascimento|date:'Y-m-d' }}">
+            </div>
+
+            <div class="campo">
+                <label>Cidade</label>
+                <input name="cidade" value="{{ inscricao.cidade }}">
+            </div>
+
+            <div class="campo">
+                <label>Estado</label>
+                <input name="estado" value="{{ inscricao.estado }}">
+            </div>
+
+            <!-- IGREJA -->
+            <div class="campo full">
+                <label>Igreja</label>
+                <input name="igreja" value="{{ inscricao.igreja }}">
+            </div>
+
+            <div class="campo">
+                <label>Participa de igreja?</label>
+                <select name="participa_igreja">
+                    <option value="True" {% if inscricao.participa_igreja %}selected{% endif %}>Sim</option>
+                    <option value="False" {% if not inscricao.participa_igreja %}selected{% endif %}>Não</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Pastor / Líder</label>
+                <input name="pastor_lider" value="{{ inscricao.pastor_lider }}">
+            </div>
+
+            <div class="campo">
+                <label>Telefone líder</label>
+                <input name="telefone_lider" value="{{ inscricao.telefone_lider }}">
+            </div>
+
+            <div class="campo">
+                <label>Tempo de igreja</label>
+                <input name="tempo_igreja" value="{{ inscricao.tempo_igreja }}">
+            </div>
+
+            <!-- EMERGÊNCIA -->
+            <div class="campo">
+                <label>Responsável</label>
+                <input name="responsavel_nome" value="{{ inscricao.responsavel_nome }}">
+            </div>
+
+            <div class="campo">
+                <label>Telefone responsável</label>
+                <input name="telefone_responsavel" value="{{ inscricao.telefone_responsavel }}">
+            </div>
+
+            <div class="campo">
+                <label>Parentesco</label>
+                <input name="parentesco" value="{{ inscricao.parentesco }}">
+            </div>
+
+            <!-- SAÚDE -->
+            <div class="campo">
+                <label>Alergias</label>
+                <input name="alergias" value="{{ inscricao.alergias }}">
+            </div>
+
+            <div class="campo">
+                <label>Doenças</label>
+                <input name="doencas_pre_existentes" value="{{ inscricao.doencas_pre_existentes }}">
+            </div>
+
+            <div class="campo">
+                <label>Medicamentos</label>
+                <input name="medicamentos_continuos" value="{{ inscricao.medicamentos_continuos }}">
+            </div>
+
+            <div class="campo">
+                <label>Restrição alimentar</label>
+                <input name="restricoes_alimentares" value="{{ inscricao.restricoes_alimentares }}">
+            </div>
+
+            <div class="campo full">
+                <label>Observações médicas</label>
+                <textarea name="observacoes_medicas">{{ inscricao.observacoes_medicas }}</textarea>
+            </div>
+
+            <!-- OUTROS -->
+            <div class="campo">
+                <label>Como conheceu</label>
+                <input name="como_conheceu" value="{{ inscricao.como_conheceu }}">
+            </div>
+
+            <div class="campo">
+                <label>Tamanho camisa</label>
+                <input name="tamanho_camisa" value="{{ inscricao.tamanho_camisa }}">
+            </div>
+
+            <div class="campo">
+                <label>Tipo</label>
+                <select name="tipo">
+                    <option value="primeira_vez" {% if inscricao.tipo == "primeira_vez" %}selected{% endif %}>Primeira vez</option>
+                    <option value="servo" {% if inscricao.tipo == "servo" %}selected{% endif %}>Servo</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label>Status</label>
+                <select name="status_pagamento">
+                    <option value="pendente" {% if inscricao.status_pagamento == "pendente" %}selected{% endif %}>Pendente</option>
+                    <option value="pago" {% if inscricao.status_pagamento == "pago" %}selected{% endif %}>Pago</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="acoes">
+            <button class="salvar">Salvar</button>
+            <a class="cancelar" href="{% url 'detalhe_inscricao' inscricao.id %}">Cancelar</a>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>
