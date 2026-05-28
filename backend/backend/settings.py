@@ -145,7 +145,7 @@ REST_FRAMEWORK = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    os.getenv("CORS_ALLOWED_ORIGINS")
+    "https://contagion-dusky.vercel.app",
 ]
 AUTH_USER_MODEL = "users.Usuario"
 
