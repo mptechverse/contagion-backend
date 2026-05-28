@@ -151,12 +151,13 @@ AUTH_USER_MODEL = "users.Usuario"
 
 
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
+
 CORS_ALLOW_ALL_ORIGINS = True
 
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/api/inscricoes/lista/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+
+SECRET_KEY = os.getenv("SECRET_KEY")
