@@ -30,6 +30,7 @@ class CriarInscricao(generics.CreateAPIView):
     queryset = Inscricao.objects.all()
     serializer_class = InscricaoSerializer
     permission_classes = [AllowAny]
+    authentication_classes = []
 
     def perform_create(self, serializer):
 
