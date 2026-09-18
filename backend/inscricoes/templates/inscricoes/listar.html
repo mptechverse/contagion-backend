@@ -237,20 +237,6 @@
         </div>
 
         <div class="card">
-            <div class="card-titulo">Pagos</div>
-            <div class="card-valor">
-                {{ pagos }}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-titulo">Pendentes</div>
-            <div class="card-valor">
-                {{ pendentes }}
-            </div>
-        </div>
-
-        <div class="card">
             <div class="card-titulo">Servos</div>
             <div class="card-valor">
                 {{ servos }}
@@ -273,22 +259,6 @@
             id="pesquisa"
             placeholder="Pesquisar por nome ou telefone..."
         >
-
-        <select id="filtroStatus">
-
-            <option value="">
-                Todos status
-            </option>
-
-            <option value="pago">
-                Pago
-            </option>
-
-            <option value="pendente">
-                Pendente
-            </option>
-
-        </select>
 
         <select id="filtroTipo">
 
@@ -340,7 +310,6 @@
                     <th>Idade</th>
                     <th>Tipo</th>
                     <th>Data criação</th>
-                    <th>Status</th>
                 </tr>
 
             </thead>
@@ -352,7 +321,6 @@
                 <tr
                     data-nome="{{ i.nome_completo|lower }}"
                     data-telefone="{{ i.telefone|lower }}"
-                    data-status="{{ i.status_pagamento|lower }}"
                     data-tipo="{{ i.get_tipo_display|lower }}"
                     data-data="{{ i.criado_em|date:'U' }}"
                 >
@@ -389,18 +357,6 @@
                         </a>
                     </td>
 
-                    <td>
-
-                        <a href="{% url 'detalhe_inscricao' i.id %}">
-
-                            <span class="badge {% if i.status_pagamento == 'pago' %}pago{% else %}pendente{% endif %}">
-                                {{ i.status_pagamento }}
-                            </span>
-
-                        </a>
-
-                    </td>
-
                 </tr>
 
                 {% endfor %}
@@ -414,7 +370,6 @@
     <script>
 
         const pesquisa = document.getElementById('pesquisa');
-        const filtroStatus = document.getElementById('filtroStatus');
         const filtroTipo = document.getElementById('filtroTipo');
         const ordenacao = document.getElementById('ordenacao');
 
@@ -430,24 +385,17 @@
 
             const texto = pesquisa.value.toLowerCase();
 
-            const status = filtroStatus.value.toLowerCase();
-
             const tipo = filtroTipo.value.toLowerCase();
 
             linhas.forEach(function(linha){
 
                 const nome = linha.dataset.nome;
                 const telefone = linha.dataset.telefone;
-                const statusLinha = linha.dataset.status;
                 const tipoLinha = linha.dataset.tipo;
 
                 const matchPesquisa =
                     nome.includes(texto)
                     || telefone.includes(texto);
-
-                const matchStatus =
-                    status === ''
-                    || statusLinha === status;
 
                 const matchTipo =
                     tipo === ''
@@ -455,7 +403,6 @@
 
                 if(
                     matchPesquisa
-                    && matchStatus
                     && matchTipo
                 ){
                     linha.style.display = '';
@@ -509,11 +456,6 @@
 
         pesquisa.addEventListener(
             'keyup',
-            aplicarFiltros
-        );
-
-        filtroStatus.addEventListener(
-            'change',
             aplicarFiltros
         );
 

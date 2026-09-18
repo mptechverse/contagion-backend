@@ -11,16 +11,6 @@ class Evento(models.Model):
 
     data_fim = models.DateTimeField()
 
-    valor_primeira_vez = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
-
-    valor_servo = models.DecimalField(
-        max_digits=10,
-        decimal_places=2
-    )
-
     ativo = models.BooleanField(default=True)
 
     def __str__(self):
@@ -32,11 +22,6 @@ class Inscricao(models.Model):
     TIPO = (
         ('primeira_vez', 'Primeira Vez'),
         ('servo', 'Servo'),
-    )
-
-    STATUS = (
-        ('pendente', 'Pendente'),
-        ('pago', 'Pago'),
     )
 
     TAMANHO_CAMISA = (
@@ -204,29 +189,6 @@ class Inscricao(models.Model):
         null=True
     )
 
-    # =========================
-    # PAGAMENTO
-    # =========================
-
-    valor = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        blank=True,
-        null=True
-    )
-
-    status_pagamento = models.CharField(
-        max_length=20,
-        choices=STATUS,
-        default='pendente'
-    )
-
-    payment_id = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True
-    )
-
     criado_em = models.DateTimeField(
         auto_now_add=True
     )
@@ -251,19 +213,9 @@ class Inscricao(models.Model):
             )
         )
 
-    def definir_valor(self):
-
-        if self.tipo == 'primeira_vez':
-            self.valor = self.evento.valor_primeira_vez
-
-        elif self.tipo == 'servo':
-            self.valor = self.evento.valor_servo
-
     def save(self, *args, **kwargs):
 
         if self.data_nascimento:
             self.idade = self.calcular_idade()
-
-        self.definir_valor()
 
         super().save(*args, **kwargs)

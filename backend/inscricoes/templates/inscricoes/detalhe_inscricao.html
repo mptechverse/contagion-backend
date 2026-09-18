@@ -201,10 +201,6 @@
 
             <h1>{{ inscricao.nome_completo }}</h1>
 
-            <div class="badge {% if inscricao.status_pagamento == 'pago' %}pago{% else %}pendente{% endif %}">
-                {{ inscricao.get_status_pagamento_display }}
-            </div>
-
         </div>
 
         <!-- DADOS PESSOAIS -->
@@ -522,7 +518,7 @@
 
         </div>
 
-        <!-- PAGAMENTO -->
+        <!-- INFORMAÇÕES -->
         <div class="secao">
 
             <div class="secao-titulo">
@@ -562,51 +558,13 @@
 
         </div>
 
-        <!-- STATUS -->
         <div class="secao">
 
             <div class="secao-titulo">
                 Gerenciamento
             </div>
 
-            <div class="linha">
-                    <div class="label">Valor da inscrição</div>
-                    <div class="valor">
-                        R$ {{ inscricao.valor }}
-                    </div>
-                </div>
-            <form method="POST">
-
-                {% csrf_token %}
-
-                <select name="status_pagamento">
-
-                    <option 
-                        value="pendente"
-                        {% if inscricao.status_pagamento == 'pendente' %}
-                            selected
-                        {% endif %}
-                    >
-                        Pendente
-                    </option>
-
-                    <option 
-                        value="pago"
-                        {% if inscricao.status_pagamento == 'pago' %}
-                            selected
-                        {% endif %}
-                    >
-                        Pago
-                    </option>
-
-                </select>
-
                 <div class="acoes">
-
-                    <button class="salvar" type="submit">
-                        Atualizar Status
-                    </button>
-
                     <a href="{% url 'editar_inscricao' inscricao.id %}">
                         <button type="button" class="editar">
                             Editar
@@ -619,9 +577,7 @@
                         </button>
                     </a>
 
-                </div>
-
-            </form>
+            </div>
 
         </div>
 

@@ -48,14 +48,6 @@ def listar_inscricoes(request):
         '-criado_em'
     )
 
-    pagos = inscricoes.filter(
-        status_pagamento='pago'
-    ).count()
-
-    pendentes = inscricoes.filter(
-        status_pagamento='pendente'
-    ).count()
-
     servos = inscricoes.filter(
         tipo='servo'
     ).count()
@@ -69,8 +61,6 @@ def listar_inscricoes(request):
         'inscricoes/listar.html',
         {
             'inscricoes': inscricoes,
-            'pagos': pagos,
-            'pendentes': pendentes,
             'servos': servos,
             'primeira_vez': primeira_vez,
         }
@@ -84,16 +74,6 @@ def detalhe_inscricao(request, id):
         Inscricao,
         id=id
     )
-
-    if request.method == 'POST':
-
-        inscricao.status_pagamento = request.POST.get(
-            'status_pagamento'
-        )
-
-        inscricao.save()
-
-        return redirect('listar_inscricoes')
 
     return render(
         request,
@@ -178,10 +158,6 @@ def editar_inscricao(request, id):
 
         inscricao.tamanho_camisa = request.POST.get(
             'tamanho_camisa'
-        )
-
-        inscricao.status_pagamento = request.POST.get(
-            'status_pagamento'
         )
 
         inscricao.quer_servir = (

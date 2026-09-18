@@ -10,9 +10,6 @@ class InscricaoSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'usuario',
             'evento',
-            'valor',
             'idade',
-            'status_pagamento',
-            'payment_id',
             'criado_em'
         ]
