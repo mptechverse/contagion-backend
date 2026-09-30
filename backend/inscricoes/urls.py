@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (
     CriarInscricao,
+    evento_atual,
     listar_inscricoes,
     detalhe_inscricao,
     editar_inscricao,
@@ -8,6 +9,12 @@ from .views import (
 )
 
 urlpatterns = [
+
+    path(
+        'evento/',
+        evento_atual,
+        name='evento-atual'
+    ),
 
     path(
         '',

@@ -7,9 +7,19 @@ class Evento(models.Model):
 
     nome = models.CharField(max_length=255)
 
-    data_inicio = models.DateTimeField()
+    data_evento = models.DateTimeField()
 
-    data_fim = models.DateTimeField()
+    quantidade_participantes_maxima = models.IntegerField()
+
+    quantidade_acampantes_maxima = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+
+    quantidade_servos_maxima = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
 
     ativo = models.BooleanField(default=True)
 

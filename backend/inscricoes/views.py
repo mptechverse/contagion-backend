@@ -2,12 +2,15 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 
 from .models import Inscricao, Evento
 from .serializers import InscricaoSerializer
 
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
+from django.db import transaction
+from django.utils import timezone
 
 from django.contrib.auth.decorators import login_required
 
@@ -24,6 +27,23 @@ def home(request):
     })
 
 
+@api_view(['GET'])
+def evento_atual(request):
+    evento = Evento.objects.filter(ativo=True).first()
+
+    if evento is None:
+        return Response(
+            {'detail': 'Não há evento ativo.'},
+            status=404
+        )
+
+    return Response({
+        'id': evento.id,
+        'nome': evento.nome,
+        'data_evento': evento.data_evento,
+    })
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class CriarInscricao(generics.CreateAPIView):
 
@@ -33,12 +53,40 @@ class CriarInscricao(generics.CreateAPIView):
     authentication_classes = []
 
     def perform_create(self, serializer):
+        with transaction.atomic():
+            evento = Evento.objects.select_for_update().filter(
+                ativo=True
+            ).first()
 
-        evento = Evento.objects.filter(
-            ativo=True
-        ).first()
+            if evento is None:
+                raise ValidationError({
+                    'evento': 'Não há evento ativo para inscrição.'
+                })
 
-        serializer.save(evento=evento)
+            if timezone.now() >= evento.data_evento:
+                raise ValidationError({
+                    'evento': 'As inscrições foram encerradas porque o evento já começou.'
+                })
+
+            tipo = serializer.validated_data['tipo']
+            if tipo == 'servo':
+                limite = evento.quantidade_servos_maxima
+                nome_categoria = 'servos'
+            else:
+                limite = evento.quantidade_acampantes_maxima
+                nome_categoria = 'acampantes'
+
+            total_categoria = Inscricao.objects.filter(
+                evento=evento,
+                tipo=tipo
+            ).count()
+
+            if limite is not None and total_categoria >= limite:
+                raise ValidationError({
+                    'tipo': f'As vagas para {nome_categoria} foram preenchidas.'
+                })
+
+            serializer.save(evento=evento)
 
 
 @login_required
@@ -48,6 +96,8 @@ def listar_inscricoes(request):
         '-criado_em'
     )
 
+    evento = Evento.objects.filter(ativo=True).first()
+
     servos = inscricoes.filter(
         tipo='servo'
     ).count()
@@ -56,6 +106,21 @@ def listar_inscricoes(request):
         tipo='primeira_vez'
     ).count()
 
+    acampantes_evento = 0
+    servos_evento = 0
+    inscricoes_encerradas = False
+
+    if evento:
+        acampantes_evento = Inscricao.objects.filter(
+            evento=evento,
+            tipo='primeira_vez'
+        ).count()
+        servos_evento = Inscricao.objects.filter(
+            evento=evento,
+            tipo='servo'
+        ).count()
+        inscricoes_encerradas = timezone.now() >= evento.data_evento
+
     return render(
         request,
         'inscricoes/listar.html',
@@ -63,6 +128,10 @@ def listar_inscricoes(request):
             'inscricoes': inscricoes,
             'servos': servos,
             'primeira_vez': primeira_vez,
+            'evento': evento,
+            'acampantes_evento': acampantes_evento,
+            'servos_evento': servos_evento,
+            'inscricoes_encerradas': inscricoes_encerradas,
         }
     )
 
