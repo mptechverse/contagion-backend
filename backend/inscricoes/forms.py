@@ -13,6 +13,8 @@ class EventoForm(forms.ModelForm):
             'data_fim_evento',
             'quantidade_acampantes_maxima',
             'quantidade_servos_maxima',
+            'valor_acampante',
+            'valor_servo',
         )
         labels = {
             'nome': 'Nome do evento',
@@ -20,12 +22,16 @@ class EventoForm(forms.ModelForm):
             'data_fim_evento': 'Data e hora de término',
             'quantidade_acampantes_maxima': 'Vagas para acampantes',
             'quantidade_servos_maxima': 'Vagas para servos',
+            'valor_acampante': 'Valor para acampante (R$)',
+            'valor_servo': 'Valor para servo (R$)',
         }
         widgets = {
             'data_evento': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'data_fim_evento': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'quantidade_acampantes_maxima': forms.NumberInput(attrs={'min': 0}),
             'quantidade_servos_maxima': forms.NumberInput(attrs={'min': 0}),
+            'valor_acampante': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
+            'valor_servo': forms.NumberInput(attrs={'min': 0, 'step': '0.01'}),
         }
 
     def __init__(self, *args, **kwargs):

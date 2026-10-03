@@ -212,6 +212,8 @@ class GestaoEventosTests(TestCase):
 				'data_fim_evento': fim.strftime('%Y-%m-%dT%H:%M'),
 				'quantidade_acampantes_maxima': 20,
 				'quantidade_servos_maxima': 8,
+				'valor_acampante': '175.50',
+				'valor_servo': '90.00',
 			},
 		)
 
@@ -219,6 +221,8 @@ class GestaoEventosTests(TestCase):
 		novo_evento = Evento.objects.get(nome='Novo acampamento')
 		self.assertTrue(novo_evento.ativo)
 		self.assertEqual(novo_evento.quantidade_participantes_maxima, 28)
+		self.assertEqual(novo_evento.valor_acampante, 175.50)
+		self.assertEqual(novo_evento.valor_servo, 90.00)
 		self.evento_ativo.refresh_from_db()
 		self.assertFalse(self.evento_ativo.ativo)
 
@@ -232,6 +236,8 @@ class GestaoEventosTests(TestCase):
 				'data_fim_evento': (inicio - timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M'),
 				'quantidade_acampantes_maxima': 20,
 				'quantidade_servos_maxima': 8,
+				'valor_acampante': '175.50',
+				'valor_servo': '90.00',
 			},
 		)
 

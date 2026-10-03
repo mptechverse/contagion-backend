@@ -1,7 +1,9 @@
 from django.db import models, transaction
 from django.db.models import Q
+from django.core.validators import MinValueValidator
 from django.conf import settings
 from datetime import date
+from decimal import Decimal
 
 
 class Evento(models.Model):
@@ -27,6 +29,20 @@ class Evento(models.Model):
         null=True
     )
 
+    valor_acampante = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+    )
+
+    valor_servo = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+    )
+
     ativo = models.BooleanField(default=True)
 
     class Meta:
@@ -35,6 +51,14 @@ class Evento(models.Model):
                 fields=('ativo',),
                 condition=Q(ativo=True),
                 name='unico_evento_ativo',
+            ),
+            models.CheckConstraint(
+                condition=Q(valor_acampante__gte=0),
+                name='valor_acampante_nao_negativo',
+            ),
+            models.CheckConstraint(
+                condition=Q(valor_servo__gte=0),
+                name='valor_servo_nao_negativo',
             ),
         ]
 

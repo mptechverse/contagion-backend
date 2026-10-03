@@ -10,6 +10,8 @@ class EventoAdmin(admin.ModelAdmin):
 		'data_fim_evento',
 		'quantidade_acampantes_maxima',
 		'quantidade_servos_maxima',
+		'valor_acampante',
+		'valor_servo',
 		'ativo',
 	)
 	list_filter = ('ativo',)

@@ -224,42 +224,6 @@
             font-weight:bold;
         }
 
-        .evento-resumo{
-            background:#171717;
-            border:1px solid #2b2b2b;
-            border-left:4px solid #ffc700;
-            border-radius:8px;
-            padding:20px 22px;
-            margin-bottom:30px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            gap:20px;
-            flex-wrap:wrap;
-        }
-
-        .evento-resumo h2{
-            font-size:20px;
-            margin-bottom:8px;
-        }
-
-        .evento-resumo p{
-            color:#bbb;
-            margin-top:6px;
-        }
-
-        .evento-resumo a{
-            color:#ffc700;
-        }
-
-        .evento-status{
-            font-weight:bold;
-            color:#55ff88 !important;
-        }
-
-        .evento-status.encerrado{
-            color:#ff7777 !important;
-        }
     </style>
 
 </head>
@@ -292,50 +256,6 @@
                 {{ inscricoes|length }}
             </div>
         </div>
-
-        {% if evento %}
-        <section class="evento-resumo">
-            <div>
-                <h2>{{ evento.nome }}</h2>
-                <p>Início: {{ evento.data_evento|date:"d/m/Y H:i" }}</p>
-                <p class="evento-status{% if inscricoes_encerradas %} encerrado{% endif %}">
-                    {% if inscricoes_encerradas %}
-                        Inscrições encerradas
-                    {% else %}
-                        Inscrições abertas
-                    {% endif %}
-                </p>
-            </div>
-            <div>
-                <p>
-                    Acampantes: {{ acampantes_evento }} /
-                    {% if evento.quantidade_acampantes_maxima != None %}
-                        {{ evento.quantidade_acampantes_maxima }}
-                    {% else %}
-                        sem limite definido
-                    {% endif %}
-                </p>
-                <p>
-                    Servos: {{ servos_evento }} /
-                    {% if evento.quantidade_servos_maxima != None %}
-                        {{ evento.quantidade_servos_maxima }}
-                    {% else %}
-                        sem limite definido
-                    {% endif %}
-                </p>
-                {% if perms.inscricoes.change_evento %}
-                <p><a href="{% url 'admin:inscricoes_evento_change' evento.id %}">Configurar evento</a></p>
-                {% endif %}
-            </div>
-        </section>
-        {% else %}
-        <section class="evento-resumo">
-            <h2>Nenhum evento ativo para inscrição</h2>
-            {% if perms.inscricoes.add_evento %}
-            <a href="{% url 'admin:inscricoes_evento_add' %}">Cadastrar evento</a>
-            {% endif %}
-        </section>
-        {% endif %}
 
         <div class="card">
             <div class="card-titulo">Servos</div>

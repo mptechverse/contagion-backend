@@ -47,6 +47,8 @@ def evento_atual(request):
         'nome': evento.nome,
         'data_evento': evento.data_evento,
         'data_fim_evento': evento.data_fim_evento,
+        'valor_acampante': evento.valor_acampante,
+        'valor_servo': evento.valor_servo,
     })
 
 
@@ -106,21 +108,6 @@ def listar_inscricoes(request):
     servos = inscricoes.filter(tipo='servo').count()
     primeira_vez = inscricoes.filter(tipo='primeira_vez').count()
 
-    acampantes_evento = 0
-    servos_evento = 0
-    inscricoes_encerradas = False
-
-    if evento:
-        acampantes_evento = Inscricao.objects.filter(
-            evento=evento,
-            tipo='primeira_vez'
-        ).count()
-        servos_evento = Inscricao.objects.filter(
-            evento=evento,
-            tipo='servo'
-        ).count()
-        inscricoes_encerradas = timezone.now() >= evento.data_evento
-
     return render(
         request,
         'inscricoes/listar.html',
@@ -128,10 +115,6 @@ def listar_inscricoes(request):
             'inscricoes': inscricoes,
             'servos': servos,
             'primeira_vez': primeira_vez,
-            'evento': evento,
-            'acampantes_evento': acampantes_evento,
-            'servos_evento': servos_evento,
-            'inscricoes_encerradas': inscricoes_encerradas,
         }
     )
 

@@ -87,6 +87,7 @@
                             Não informado
                         {% endif %}
                     </div>
+                    <div>Acampante: R$ {{ evento.valor_acampante|floatformat:2 }} / Servo: R$ {{ evento.valor_servo|floatformat:2 }}</div>
                 </div>
                 <div class="event-count">{{ evento.total_inscricoes }} inscrições</div>
                 <div class="row-actions">

@@ -51,6 +51,7 @@
                     Não informado
                 {% endif %}
             </div>
+            <div>Acampante: R$ {{ evento.valor_acampante|floatformat:2 }} | Servo: R$ {{ evento.valor_servo|floatformat:2 }}</div>
         </div>
         <span class="status{% if not evento.ativo %} history{% endif %}">
             {% if evento.ativo %}Ativo{% else %}Histórico{% endif %}
