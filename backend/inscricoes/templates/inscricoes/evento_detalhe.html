@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ evento.nome }} | Inscritos</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{min-height:100vh;background:#101111;color:#f5f3eb;font-family:Arial,Helvetica,sans-serif;padding:32px}
+        .page{max-width:1120px;margin:0 auto}
+        .top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}
+        .top a{color:#f2c94c;text-decoration:none}
+        .top form{margin-left:auto}
+        .logout{padding:10px 15px;border:0;border-radius:7px;background:#9e3434;color:white;font-weight:700;cursor:pointer}
+        h1{font-size:30px;color:#f2c94c;margin-bottom:12px}
+        .dates{color:#b7b9b4;line-height:1.8}
+        .status{display:inline-flex;margin-top:12px;padding:6px 10px;border-radius:999px;background:#273d31;color:#8ee0a3;font-size:12px;font-weight:700}
+        .status.history{background:#2b2d2d;color:#c4c6c2}
+        .summary{display:flex;gap:24px;flex-wrap:wrap;margin:26px 0;padding:16px 0;border-top:1px solid #343737;border-bottom:1px solid #343737;color:#c8c9c5}
+        .summary strong{color:#f2c94c;font-size:20px;margin-right:6px}
+        .table-wrap{overflow-x:auto;border:1px solid #343737;border-radius:8px}
+        table{width:100%;min-width:720px;border-collapse:collapse;background:#171919}
+        th,td{padding:14px 16px;text-align:left;border-bottom:1px solid #303333}
+        th{background:#202323;color:#f2c94c;font-size:13px}
+        td{color:#d6d7d2}
+        tbody tr:last-child td{border-bottom:0}
+        td a{color:inherit;text-decoration:none}
+        td a:hover{color:#f2c94c}
+        .empty{padding:26px;color:#aaa}
+        @media(max-width:600px){body{padding:22px 16px}.top{flex-wrap:wrap}h1{font-size:25px}}
+    </style>
+</head>
+<body>
+    <main class="page">
+        <nav class="top">
+            <a href="{% url 'listar_eventos' %}">&larr; Todos os eventos</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout" type="submit">Sair</button>
+            </form>
+        </nav>
+
+        <h1>{{ evento.nome }}</h1>
+        <div class="dates">
+            <div>Início: {{ evento.data_evento|date:"d/m/Y H:i" }}</div>
+            <div>
+                Fim:
+                {% if evento.data_fim_evento %}
+                    {{ evento.data_fim_evento|date:"d/m/Y H:i" }}
+                {% else %}
+                    Não informado
+                {% endif %}
+            </div>
+        </div>
+        <span class="status{% if not evento.ativo %} history{% endif %}">
+            {% if evento.ativo %}Ativo{% else %}Histórico{% endif %}
+        </span>
+
+        <section class="summary" aria-label="Resumo de inscrições">
+            <div><strong>{{ inscricoes|length }}</strong> inscritos</div>
+            <div><strong>{{ acampantes }}</strong> acampantes</div>
+            <div><strong>{{ servos }}</strong> servos</div>
+        </section>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Telefone</th>
+                        <th>Idade</th>
+                        <th>Inscrito em</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inscricao in inscricoes %}
+                    <tr>
+                        <td><a href="{% url 'detalhe_inscricao' inscricao.id %}">{{ inscricao.nome_completo }}</a></td>
+                        <td>{{ inscricao.get_tipo_display }}</td>
+                        <td>{{ inscricao.telefone }}</td>
+                        <td>{{ inscricao.idade }}</td>
+                        <td>{{ inscricao.criado_em|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td class="empty" colspan="5">Não há inscrições para este evento.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

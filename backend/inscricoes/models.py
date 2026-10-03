@@ -1,4 +1,5 @@
-from django.db import models
+from django.db import models, transaction
+from django.db.models import Q
 from django.conf import settings
 from datetime import date
 
@@ -8,6 +9,11 @@ class Evento(models.Model):
     nome = models.CharField(max_length=255)
 
     data_evento = models.DateTimeField()
+
+    data_fim_evento = models.DateTimeField(
+        blank=True,
+        null=True
+    )
 
     quantidade_participantes_maxima = models.IntegerField()
 
@@ -23,8 +29,31 @@ class Evento(models.Model):
 
     ativo = models.BooleanField(default=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=('ativo',),
+                condition=Q(ativo=True),
+                name='unico_evento_ativo',
+            ),
+        ]
+
     def __str__(self):
         return self.nome
+
+    def save(self, *args, **kwargs):
+        using = kwargs.get('using') or 'default'
+
+        with transaction.atomic(using=using):
+            if self.ativo:
+                eventos_ativos = Evento.objects.using(using).filter(
+                    ativo=True
+                )
+                if self.pk:
+                    eventos_ativos = eventos_ativos.exclude(pk=self.pk)
+                eventos_ativos.update(ativo=False)
+
+            super().save(*args, **kwargs)
 
 
 class Inscricao(models.Model):

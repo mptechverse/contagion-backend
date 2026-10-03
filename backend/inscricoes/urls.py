@@ -2,6 +2,9 @@ from django.urls import path
 from .views import (
     CriarInscricao,
     evento_atual,
+    listar_eventos,
+    detalhe_evento,
+    ativar_evento,
     listar_inscricoes,
     detalhe_inscricao,
     editar_inscricao,
@@ -9,6 +12,24 @@ from .views import (
 )
 
 urlpatterns = [
+
+    path(
+        'painel/eventos/',
+        listar_eventos,
+        name='listar_eventos'
+    ),
+
+    path(
+        'painel/eventos/<int:evento_id>/',
+        detalhe_evento,
+        name='detalhe_evento'
+    ),
+
+    path(
+        'painel/eventos/<int:evento_id>/ativar/',
+        ativar_evento,
+        name='ativar_evento'
+    ),
 
     path(
         'evento/',

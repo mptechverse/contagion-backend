@@ -7,6 +7,7 @@ class EventoAdmin(admin.ModelAdmin):
 	list_display = (
 		'nome',
 		'data_evento',
+		'data_fim_evento',
 		'quantidade_acampantes_maxima',
 		'quantidade_servos_maxima',
 		'ativo',
@@ -15,4 +16,14 @@ class EventoAdmin(admin.ModelAdmin):
 	search_fields = ('nome',)
 
 
-admin.site.register(Inscricao)
+@admin.register(Inscricao)
+class InscricaoAdmin(admin.ModelAdmin):
+	list_display = (
+		'nome_completo',
+		'evento',
+		'tipo',
+		'telefone',
+		'criado_em',
+	)
+	list_filter = ('evento', 'tipo')
+	search_fields = ('nome_completo', 'telefone', 'email')

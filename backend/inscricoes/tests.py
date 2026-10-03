@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 from datetime import date, datetime, timedelta
+from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
 from .models import Evento, Inscricao
@@ -114,3 +115,125 @@ class CriarInscricaoTests(TestCase):
 
 		self.assertEqual(response.status_code, 400)
 		self.assertEqual(Inscricao.objects.filter(tipo='servo').count(), 1)
+
+
+class GestaoEventosTests(TestCase):
+
+	def setUp(self):
+		self.inicio = timezone.now() + timedelta(days=10)
+		self.evento_ativo = Evento.objects.create(
+			nome='Evento atual',
+			data_evento=self.inicio,
+			data_fim_evento=self.inicio + timedelta(days=2),
+			quantidade_participantes_maxima=10,
+			quantidade_acampantes_maxima=7,
+			quantidade_servos_maxima=3,
+			ativo=True,
+		)
+		User = get_user_model()
+		self.admin = User.objects.create_user(
+			username='admin',
+			email='admin@example.com',
+			password='senha-segura',
+			nome='Admin',
+			is_staff=True,
+		)
+		self.client.force_login(self.admin)
+
+	def criar_inscricao(self, evento, nome):
+		return Inscricao.objects.create(
+			evento=evento,
+			tipo='primeira_vez',
+			nome_completo=nome,
+			data_nascimento=date(2000, 1, 1),
+			telefone='81999999999',
+			cidade='Recife',
+			estado='PE',
+			tamanho_camisa='M',
+		)
+
+	def test_salvar_evento_ativo_desativa_o_anterior(self):
+		novo_evento = Evento.objects.create(
+			nome='Próximo evento',
+			data_evento=self.inicio + timedelta(days=30),
+			data_fim_evento=self.inicio + timedelta(days=32),
+			quantidade_participantes_maxima=5,
+			ativo=True,
+		)
+
+		self.evento_ativo.refresh_from_db()
+		self.assertFalse(self.evento_ativo.ativo)
+		self.assertTrue(novo_evento.ativo)
+		self.assertEqual(Evento.objects.filter(ativo=True).count(), 1)
+
+	def test_painel_inicial_lista_somente_inscritos_no_evento_ativo(self):
+		evento_historico = Evento.objects.create(
+			nome='Evento anterior',
+			data_evento=self.inicio - timedelta(days=30),
+			ativo=False,
+			quantidade_participantes_maxima=5,
+		)
+		inscricao_atual = self.criar_inscricao(self.evento_ativo, 'Pessoa atual')
+		self.criar_inscricao(evento_historico, 'Pessoa anterior')
+
+		response = self.client.get(reverse('home'))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'Pessoa atual')
+		self.assertNotContains(response, 'Pessoa anterior')
+		self.assertEqual(list(response.context['inscricoes']), [inscricao_atual])
+
+	def test_area_eventos_exibe_historico_e_inscritos(self):
+		evento_historico = Evento.objects.create(
+			nome='Evento anterior',
+			data_evento=self.inicio - timedelta(days=30),
+			ativo=False,
+			quantidade_participantes_maxima=5,
+		)
+		self.criar_inscricao(evento_historico, 'Pessoa anterior')
+
+		lista = self.client.get(reverse('listar_eventos'))
+		detalhe = self.client.get(
+			reverse('detalhe_evento', args=[evento_historico.id])
+		)
+
+		self.assertContains(lista, 'Evento atual')
+		self.assertContains(lista, 'Evento anterior')
+		self.assertContains(detalhe, 'Pessoa anterior')
+
+	def test_criar_evento_pelo_formulario_ativa_e_calcula_limite_total(self):
+		inicio = timezone.localtime(timezone.now() + timedelta(days=40))
+		fim = inicio + timedelta(days=2)
+		response = self.client.post(
+			reverse('listar_eventos'),
+			{
+				'nome': 'Novo acampamento',
+				'data_evento': inicio.strftime('%Y-%m-%dT%H:%M'),
+				'data_fim_evento': fim.strftime('%Y-%m-%dT%H:%M'),
+				'quantidade_acampantes_maxima': 20,
+				'quantidade_servos_maxima': 8,
+			},
+		)
+
+		self.assertEqual(response.status_code, 302)
+		novo_evento = Evento.objects.get(nome='Novo acampamento')
+		self.assertTrue(novo_evento.ativo)
+		self.assertEqual(novo_evento.quantidade_participantes_maxima, 28)
+		self.evento_ativo.refresh_from_db()
+		self.assertFalse(self.evento_ativo.ativo)
+
+	def test_formulario_recusa_fim_anterior_ao_inicio(self):
+		inicio = timezone.localtime(timezone.now() + timedelta(days=40))
+		response = self.client.post(
+			reverse('listar_eventos'),
+			{
+				'nome': 'Evento inválido',
+				'data_evento': inicio.strftime('%Y-%m-%dT%H:%M'),
+				'data_fim_evento': (inicio - timedelta(hours=1)).strftime('%Y-%m-%dT%H:%M'),
+				'quantidade_acampantes_maxima': 20,
+				'quantidade_servos_maxima': 8,
+			},
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertFalse(Evento.objects.filter(nome='Evento inválido').exists())

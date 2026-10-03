@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos | Painel</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{min-height:100vh;background:#101111;color:#f5f3eb;font-family:Arial,Helvetica,sans-serif;padding:32px}
+        a{color:inherit}
+        .page{max-width:1120px;margin:0 auto}
+        .header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:36px}
+        .header h1{font-size:32px;color:#f2c94c}
+        .header p{color:#aaa;margin-top:7px}
+        .header-actions{display:flex;align-items:center;gap:12px}
+        .button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border:0;border-radius:7px;background:#f2c94c;color:#171717;font-weight:700;text-decoration:none;cursor:pointer}
+        .button.secondary{background:#252727;color:#f5f3eb;border:1px solid #3c4040}
+        .button.small{min-height:36px;padding:0 12px;font-size:13px}
+        .logout{background:#9e3434;color:white}
+        .events{border-top:1px solid #343737}
+        .event-row{display:grid;grid-template-columns:minmax(200px,1.4fr) minmax(170px,1fr) minmax(140px,.7fr) auto;align-items:center;gap:20px;padding:20px 4px;border-bottom:1px solid #343737}
+        .event-name{font-size:18px;font-weight:700;margin-bottom:7px}
+        .event-dates,.event-count{color:#aaa;font-size:14px;line-height:1.6}
+        .status{display:inline-flex;padding:6px 10px;border-radius:999px;background:#273d31;color:#8ee0a3;font-size:12px;font-weight:700}
+        .status.history{background:#2b2d2d;color:#c4c6c2}
+        .row-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+        .inline-form{display:inline}
+        .empty{padding:36px 4px;color:#aaa;border-bottom:1px solid #343737}
+        .fab{position:fixed;right:30px;bottom:30px;width:58px;height:58px;border:0;border-radius:50%;background:#f2c94c;color:#171717;font-size:32px;line-height:1;box-shadow:0 8px 28px #0008;cursor:pointer}
+        .overlay{position:fixed;inset:0;z-index:5;display:none;align-items:flex-end;justify-content:flex-end;padding:24px;background:#0009}
+        .overlay.open{display:flex}
+        .create-panel{width:min(460px,100%);max-height:calc(100vh - 48px);overflow:auto;background:#1b1e1e;border:1px solid #414545;border-radius:10px;padding:24px;box-shadow:0 20px 70px #0009}
+        .panel-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+        .panel-heading h2{font-size:21px;color:#f2c94c}
+        .close-button{background:transparent;border:1px solid #555;color:#eee;border-radius:6px;padding:7px 10px;cursor:pointer}
+        .fields{display:grid;gap:14px}
+        .field{display:grid;gap:7px}
+        .field label{font-size:13px;color:#d2d3ce}
+        .field input{width:100%;min-height:42px;padding:10px 12px;border:1px solid #464a49;border-radius:6px;background:#111313;color:#f5f3eb;font:inherit}
+        .field input:focus{outline:2px solid #f2c94c;border-color:transparent}
+        .form-errors,.field-errors{color:#ff9b90;font-size:13px}
+        .panel-submit{width:100%;margin-top:20px}
+        @media(max-width:760px){
+            body{padding:22px 18px 100px}
+            .header{align-items:flex-start;flex-direction:column}
+            .header-actions{width:100%;flex-wrap:wrap}
+            .event-row{grid-template-columns:1fr;gap:10px;padding:18px 0}
+            .row-actions{justify-content:flex-start}
+            .fab{right:20px;bottom:20px}
+            .overlay{padding:12px}
+            .create-panel{max-height:calc(100vh - 24px)}
+        }
+    </style>
+</head>
+<body>
+    <main class="page">
+        <header class="header">
+            <div>
+                <h1>Eventos</h1>
+                <p>Evento atual e histórico</p>
+            </div>
+            <div class="header-actions">
+                <a class="button secondary" href="{% url 'home' %}">Painel de inscrições</a>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button class="button logout" type="submit">Sair</button>
+                </form>
+            </div>
+        </header>
+
+        <section class="events" aria-label="Todos os eventos">
+            {% for evento in eventos %}
+            <article class="event-row">
+                <div>
+                    <div class="event-name">{{ evento.nome }}</div>
+                    <span class="status{% if not evento.ativo %} history{% endif %}">
+                        {% if evento.ativo %}Ativo{% else %}Histórico{% endif %}
+                    </span>
+                </div>
+                <div class="event-dates">
+                    <div>Início: {{ evento.data_evento|date:"d/m/Y H:i" }}</div>
+                    <div>
+                        Fim:
+                        {% if evento.data_fim_evento %}
+                            {{ evento.data_fim_evento|date:"d/m/Y H:i" }}
+                        {% else %}
+                            Não informado
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="event-count">{{ evento.total_inscricoes }} inscrições</div>
+                <div class="row-actions">
+                    <a class="button small secondary" href="{% url 'detalhe_evento' evento.id %}">Ver inscritos</a>
+                    {% if not evento.ativo %}
+                    <form class="inline-form" method="post" action="{% url 'ativar_evento' evento.id %}">
+                        {% csrf_token %}
+                        <button class="button small" type="submit">Tornar ativo</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </article>
+            {% empty %}
+            <p class="empty">Ainda não há eventos cadastrados.</p>
+            {% endfor %}
+        </section>
+    </main>
+
+    <button class="fab" id="abrirPainel" type="button" aria-label="Criar evento" title="Criar evento">+</button>
+
+    <div class="overlay{% if form.errors %} open{% endif %}" id="modalEvento" data-invalid="{% if form.errors %}true{% else %}false{% endif %}">
+        <section class="create-panel" role="dialog" aria-modal="true" aria-labelledby="tituloFormulario">
+            <div class="panel-heading">
+                <h2 id="tituloFormulario">Criar evento</h2>
+                <button class="close-button" id="fecharPainel" type="button">Fechar</button>
+            </div>
+            <form method="post" action="{% url 'listar_eventos' %}">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
+                <div class="fields">
+                    {% for field in form %}
+                    <div class="field">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}
+                        <span class="field-errors">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="button panel-submit" type="submit">Salvar e ativar evento</button>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        const modalEvento = document.getElementById('modalEvento');
+
+        function abrirModal() {
+            modalEvento.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            modalEvento.querySelector('input').focus();
+        }
+
+        function fecharModal() {
+            modalEvento.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('abrirPainel').addEventListener('click', abrirModal);
+        document.getElementById('fecharPainel').addEventListener('click', fecharModal);
+        modalEvento.addEventListener('click', function(event) {
+            if (event.target === modalEvento) fecharModal();
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') fecharModal();
+        });
+
+        if (modalEvento.dataset.invalid === 'true') abrirModal();
+    </script>
+</body>
+</html>

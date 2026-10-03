@@ -209,6 +209,21 @@
             flex-wrap:wrap;
         }
 
+        .topo-acoes{
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .eventos-link{
+            color:#111;
+            background:#ffc700;
+            padding:12px 18px;
+            border-radius:8px;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
         .evento-resumo{
             background:#171717;
             border:1px solid #2b2b2b;
@@ -255,13 +270,18 @@
 
         <h1>Painel de Inscrições</h1>
 
-        <form method="POST" action="{% url 'logout' %}">
-            {% csrf_token %}
+        <div class="topo-acoes">
+            {% if user.is_staff %}
+            <a href="{% url 'listar_eventos' %}" class="eventos-link">Eventos</a>
+            {% endif %}
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
 
-            <button type="submit" class="logout">
-                Sair
-            </button>
-        </form>
+                <button type="submit" class="logout">
+                    Sair
+                </button>
+            </form>
+        </div>
 
     </div>
     <div class="cards">

@@ -13,9 +13,14 @@ from django.db import transaction
 from django.utils import timezone
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
+from django.db.models import Count
+
+from .forms import EventoForm
 
 
 @api_view(['GET'])
@@ -41,6 +46,7 @@ def evento_atual(request):
         'id': evento.id,
         'nome': evento.nome,
         'data_evento': evento.data_evento,
+        'data_fim_evento': evento.data_fim_evento,
     })
 
 
@@ -91,20 +97,14 @@ class CriarInscricao(generics.CreateAPIView):
 
 @login_required
 def listar_inscricoes(request):
-
-    inscricoes = Inscricao.objects.all().order_by(
-        '-criado_em'
-    )
-
     evento = Evento.objects.filter(ativo=True).first()
 
-    servos = inscricoes.filter(
-        tipo='servo'
-    ).count()
+    inscricoes = Inscricao.objects.filter(
+        evento=evento
+    ).order_by('-criado_em') if evento else Inscricao.objects.none()
 
-    primeira_vez = inscricoes.filter(
-        tipo='primeira_vez'
-    ).count()
+    servos = inscricoes.filter(tipo='servo').count()
+    primeira_vez = inscricoes.filter(tipo='primeira_vez').count()
 
     acampantes_evento = 0
     servos_evento = 0
@@ -134,6 +134,56 @@ def listar_inscricoes(request):
             'inscricoes_encerradas': inscricoes_encerradas,
         }
     )
+
+
+@staff_member_required
+def listar_eventos(request):
+    form = EventoForm(request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        evento = form.save()
+        return redirect('detalhe_evento', evento_id=evento.id)
+
+    eventos = Evento.objects.annotate(
+        total_inscricoes=Count('inscricao')
+    ).order_by('-data_evento', '-id')
+
+    return render(
+        request,
+        'inscricoes/eventos.html',
+        {
+            'eventos': eventos,
+            'form': form,
+        }
+    )
+
+
+@staff_member_required
+def detalhe_evento(request, evento_id):
+    evento = get_object_or_404(Evento, id=evento_id)
+    inscricoes = Inscricao.objects.filter(
+        evento=evento
+    ).order_by('-criado_em')
+
+    return render(
+        request,
+        'inscricoes/evento_detalhe.html',
+        {
+            'evento': evento,
+            'inscricoes': inscricoes,
+            'servos': inscricoes.filter(tipo='servo').count(),
+            'acampantes': inscricoes.filter(tipo='primeira_vez').count(),
+        }
+    )
+
+
+@staff_member_required
+@require_POST
+def ativar_evento(request, evento_id):
+    evento = get_object_or_404(Evento, id=evento_id)
+    evento.ativo = True
+    evento.save()
+    return redirect('listar_eventos')
 
 
 @login_required
